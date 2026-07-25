@@ -8,7 +8,7 @@ from rank_bm25 import BM25Okapi
 
 from knowflow.domain.models import ChunkRecord, RetrievalHit
 from knowflow.retrieval.embedding import lexical_tokens
-from knowflow.retrieval.store import InMemoryVectorStore
+from knowflow.retrieval.store import VectorStore
 
 
 def reciprocal_rank_fusion(rankings: list[list[str]], k: int = 60) -> dict[str, float]:
@@ -20,7 +20,7 @@ def reciprocal_rank_fusion(rankings: list[list[str]], k: int = 60) -> dict[str, 
 
 
 class HybridRetriever:
-    def __init__(self, vector_store: InMemoryVectorStore) -> None:
+    def __init__(self, vector_store: VectorStore) -> None:
         self.vector_store = vector_store
         self._chunks: dict[str, list[ChunkRecord]] = {}
 
