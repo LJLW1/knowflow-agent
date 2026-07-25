@@ -3,9 +3,20 @@
 from __future__ import annotations
 
 import numpy as np
+from typing import Protocol
 
 from knowflow.domain.models import ChunkRecord, RetrievalHit
 from knowflow.retrieval.embedding import EmbeddingModel
+
+
+class VectorStore(Protocol):
+    def add(self, chunks: list[ChunkRecord]) -> None: ...
+
+    def delete_document(self, project_id: str, document_id: str) -> None: ...
+
+    def search(self, *, project_id: str, query: str, top_k: int) -> list[RetrievalHit]: ...
+
+    def project_chunks(self, project_id: str) -> list[ChunkRecord]: ...
 
 
 class InMemoryVectorStore:

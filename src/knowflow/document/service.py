@@ -11,7 +11,7 @@ from knowflow.document.parsers import DocumentParser
 from knowflow.document.splitter import StructureAwareSplitter
 from knowflow.domain.models import DocumentRecord, DocumentStatus
 from knowflow.persistence.repositories import KnowledgeRepository
-from knowflow.retrieval.store import InMemoryVectorStore
+from knowflow.retrieval.store import VectorStore
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,7 +25,7 @@ class DocumentService:
     def __init__(
         self,
         repository: KnowledgeRepository,
-        vector_store: InMemoryVectorStore,
+        vector_store: VectorStore,
         *,
         parser: DocumentParser | None = None,
         splitter: StructureAwareSplitter | None = None,
