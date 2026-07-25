@@ -44,9 +44,13 @@ def _base_url() -> str:
 
 
 def knowledge_search(args: dict[str, Any], **_: Any) -> str:
+    internal_token = os.getenv("KNOWFLOW_INTERNAL_API_TOKEN")
+    if not internal_token:
+        raise RuntimeError("KNOWFLOW_INTERNAL_API_TOKEN is required")
     response = httpx.post(
         f"{_base_url()}/internal/v1/search",
         json=args,
+        headers={"X-KnowFlow-Internal-Token": internal_token},
         timeout=30,
     )
     response.raise_for_status()
@@ -82,6 +86,7 @@ def register_tools(ctx: Any) -> None:
         toolset="knowflow",
         schema=SEARCH_SCHEMA,
         handler=knowledge_search,
+        requires_env=["KNOWFLOW_INTERNAL_API_TOKEN"],
         emoji="🔎",
     )
     ctx.register_tool(

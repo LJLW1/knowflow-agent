@@ -44,7 +44,7 @@ def test_repository_finds_duplicate_content_only_inside_the_project(tmp_path) ->
     assert repository.find_document_by_hash("project-b", "b" * 64) is None
 
 
-def test_startup_marks_running_tasks_interrupted(tmp_path) -> None:
+def test_startup_marks_pending_and_running_tasks_interrupted(tmp_path) -> None:
     database = Database(f"sqlite:///{tmp_path / 'knowflow.db'}")
     database.initialize()
     repository = KnowledgeRepository(database)
@@ -56,11 +56,34 @@ def test_startup_marks_running_tasks_interrupted(tmp_path) -> None:
         request={"mode": "knowledge_report"},
         trace_id="trace-1",
     )
+    repository.create_task(
+        task_id="task-2",
+        project_id="project-a",
+        status=TaskStatus.PENDING,
+        request={"mode": "knowledge_report"},
+        trace_id="trace-2",
+    )
 
-    changed = repository.interrupt_running_tasks()
-    task = repository.get_task("project-a", "task-1")
+    changed = repository.interrupt_incomplete_tasks()
+    running = repository.get_task("project-a", "task-1")
+    pending = repository.get_task("project-a", "task-2")
 
-    assert changed == 1
-    assert task is not None
-    assert task.status is TaskStatus.INTERRUPTED
-    assert task.error_code == "PROCESS_RESTARTED"
+    assert changed == 2
+    assert running is not None
+    assert running.status is TaskStatus.INTERRUPTED
+    assert running.error_code == "PROCESS_RESTARTED"
+    assert pending is not None
+    assert pending.status is TaskStatus.INTERRUPTED
+    assert pending.error_code == "PROCESS_RESTARTED"
+
+
+def test_preferences_are_project_scoped(tmp_path) -> None:
+    database = Database(f"sqlite:///{tmp_path / 'knowflow.db'}")
+    database.initialize()
+    repository = KnowledgeRepository(database)
+    repository.create_project("project-a", "A")
+    repository.create_project("project-b", "B")
+    repository.set_preference("project-a", "answer_language", "zh-CN")
+
+    assert repository.get_preference("project-a", "answer_language") == "zh-CN"
+    assert repository.get_preference("project-b", "answer_language") is None

@@ -1,0 +1,83 @@
+name: Docker
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - docker-compose.yml
+      - pyproject.toml
+      - uv.lock
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: knowflow-agent:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Runtime health smoke
+        run: |
+          docker run --rm -d --name knowflow-smoke -p 8000:8000 knowflow-agent:test
+          trap 'docker logs knowflow-smoke; docker stop knowflow-smoke' EXIT
+          for attempt in {1..60}; do
+            if curl --fail http://127.0.0.1:8000/healthz; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+      - name: Restart persistence smoke
+        env:
+          INTERNAL_TOKEN: ci-restart-token
+        run: |
+          start_container() {
+            docker run -d --name knowflow-persist -p 8000:8000 \
+              -e KNOWFLOW_EMBEDDING_BACKEND=hash \
+              -e KNOWFLOW_INTERNAL_API_TOKEN="$INTERNAL_TOKEN" \
+              -v knowflow-persist-data:/app/data \
+              knowflow-agent:test
+            for attempt in {1..60}; do
+              if curl --fail http://127.0.0.1:8000/healthz; then
+                return 0
+              fi
+              sleep 2
+            done
+            return 1
+          }
+
+          cleanup() {
+            docker logs knowflow-persist || true
+            docker rm --force knowflow-persist || true
+            docker volume rm knowflow-persist-data || true
+          }
+          trap cleanup EXIT
+
+          docker volume create knowflow-persist-data
+          start_container
+          curl --fail \
+            -F project_id=ci-restart \
+            -F file=@demo_corpus/operations.txt \
+            http://127.0.0.1:8000/api/v1/documents
+
+          docker stop knowflow-persist
+          docker rm knowflow-persist
+          start_container
+
+          response=$(curl --fail \
+            -H "X-KnowFlow-Internal-Token: $INTERNAL_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"project_id":"ci-restart","query":"operations","top_k":6}' \
+            http://127.0.0.1:8000/internal/v1/search)
+          python -c 'import json,sys; assert json.load(sys.stdin)["hits"]' <<<"$response"

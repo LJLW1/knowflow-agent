@@ -1,0 +1,934 @@
+{
+  "run_at": "2026-07-25T09:10:14.863206+00:00",
+  "dataset_cases": 56,
+  "scored_retrieval_cases": 33,
+  "embedding_backend": "hash",
+  "top_k": 6,
+  "documents": 8,
+  "chunks": 25,
+  "index_time_ms": 24.351291998755187,
+  "peak_rss_mb": 104.5,
+  "retrieval_source_integrity": 1.0,
+  "retrieval_source_checks": 198,
+  "citation_correctness": "待测量",
+  "dense": {
+    "recall_at_k": 0.9696969696969697,
+    "mean_latency_ms": 0.21808215233525544,
+    "p95_latency_ms": 0.22495901794172823,
+    "cases": 33,
+    "retrieval_source_checks": 198,
+    "retrieval_source_integrity": 1.0,
+    "details": [
+      {
+        "id": "direct_01",
+        "expected": [
+          "requirements.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_02",
+        "expected": [
+          "requirements.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_03",
+        "expected": [
+          "requirements.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_04",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_05",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_06",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_07",
+        "expected": [
+          "api.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_08",
+        "expected": [
+          "api.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_09",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_10",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_11",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "onboarding.docx",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_12",
+        "expected": [
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_13",
+        "expected": [
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_14",
+        "expected": [
+          "incident_postmortem.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "continuity-plan.pdf",
+          "incident_postmortem.md",
+          "operations.txt"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_15",
+        "expected": [
+          "incident_postmortem.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_01",
+        "expected": [
+          "operations.txt",
+          "requirements.md"
+        ],
+        "retrieved": [
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_02",
+        "expected": [
+          "architecture.md",
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_03",
+        "expected": [
+          "api.md",
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_04",
+        "expected": [
+          "operations.txt",
+          "requirements.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_05",
+        "expected": [
+          "api.md",
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_06",
+        "expected": [
+          "incident_postmortem.md",
+          "operations.txt"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_07",
+        "expected": [
+          "api.md",
+          "architecture.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 0.5
+      },
+      {
+        "id": "cross_08",
+        "expected": [
+          "api.md",
+          "operations.txt"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 0.5
+      },
+      {
+        "id": "multi_01",
+        "expected": [
+          "api.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "onboarding.docx",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_02",
+        "expected": [
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_03",
+        "expected": [
+          "incident_postmortem.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_04",
+        "expected": [
+          "api.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_05",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_06",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "failure_01",
+        "expected": [
+          "requirements.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "failure_02",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "failure_05",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "failure_06",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      }
+    ]
+  },
+  "hybrid": {
+    "recall_at_k": 0.9848484848484849,
+    "mean_latency_ms": 0.8094697903178519,
+    "p95_latency_ms": 0.8702079940121621,
+    "cases": 33,
+    "retrieval_source_checks": 198,
+    "retrieval_source_integrity": 1.0,
+    "details": [
+      {
+        "id": "direct_01",
+        "expected": [
+          "requirements.md"
+        ],
+        "retrieved": [
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_02",
+        "expected": [
+          "requirements.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_03",
+        "expected": [
+          "requirements.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_04",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_05",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_06",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_07",
+        "expected": [
+          "api.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_08",
+        "expected": [
+          "api.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_09",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_10",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_11",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_12",
+        "expected": [
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_13",
+        "expected": [
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_14",
+        "expected": [
+          "incident_postmortem.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "direct_15",
+        "expected": [
+          "incident_postmortem.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_01",
+        "expected": [
+          "operations.txt",
+          "requirements.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_02",
+        "expected": [
+          "architecture.md",
+          "security.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_03",
+        "expected": [
+          "api.md",
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_04",
+        "expected": [
+          "operations.txt",
+          "requirements.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_05",
+        "expected": [
+          "api.md",
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_06",
+        "expected": [
+          "incident_postmortem.md",
+          "operations.txt"
+        ],
+        "retrieved": [
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_07",
+        "expected": [
+          "api.md",
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "cross_08",
+        "expected": [
+          "api.md",
+          "operations.txt"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 0.5
+      },
+      {
+        "id": "multi_01",
+        "expected": [
+          "api.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "onboarding.docx",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_02",
+        "expected": [
+          "security.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "incident_postmortem.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_03",
+        "expected": [
+          "incident_postmortem.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_04",
+        "expected": [
+          "api.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_05",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "multi_06",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "failure_01",
+        "expected": [
+          "requirements.md"
+        ],
+        "retrieved": [
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "failure_02",
+        "expected": [
+          "operations.txt"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "incident_postmortem.md",
+          "operations.txt",
+          "requirements.md",
+          "security.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "failure_05",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "operations.txt",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      },
+      {
+        "id": "failure_06",
+        "expected": [
+          "architecture.md"
+        ],
+        "retrieved": [
+          "api.md",
+          "architecture.md",
+          "requirements.md"
+        ],
+        "recall": 1.0
+      }
+    ]
+  },
+  "cloud_metrics": {
+    "answer_faithfulness": "待测量",
+    "hallucination_rate": "待测量",
+    "tool_selection_accuracy": "待测量",
+    "task_completion_rate": "待测量",
+    "token_api_cost": "待测量",
+    "end_to_end_latency": "待测量",
+    "error_recovery_rate": "待测量"
+  },
+  "limitations": [
+    "HashEmbedding 仅用于 CI 时，结果不能代表 BGE 语义检索质量。",
+    "retrieval_source_integrity 只验证检索存储自洽，不代表回答引用正确率。"
+  ]
+}

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import numpy as np
 from typing import Protocol
+
+import numpy as np
 
 from knowflow.domain.models import ChunkRecord, RetrievalHit
 from knowflow.retrieval.embedding import EmbeddingModel
@@ -11,6 +12,13 @@ from knowflow.retrieval.embedding import EmbeddingModel
 
 class VectorStore(Protocol):
     def add(self, chunks: list[ChunkRecord]) -> None: ...
+
+    def replace_document(
+        self,
+        project_id: str,
+        document_id: str,
+        chunks: list[ChunkRecord],
+    ) -> None: ...
 
     def delete_document(self, project_id: str, document_id: str) -> None: ...
 
@@ -27,6 +35,23 @@ class InMemoryVectorStore:
 
     def add(self, chunks: list[ChunkRecord]) -> None:
         vectors = self.embedding.encode([chunk.text for chunk in chunks])
+        for chunk, vector in zip(chunks, vectors, strict=True):
+            self._chunks[chunk.chunk_id] = chunk
+            self._vectors[chunk.chunk_id] = vector
+
+    def replace_document(
+        self,
+        project_id: str,
+        document_id: str,
+        chunks: list[ChunkRecord],
+    ) -> None:
+        if any(
+            chunk.project_id != project_id or chunk.document_id != document_id
+            for chunk in chunks
+        ):
+            raise ValueError("DOCUMENT_SCOPE_MISMATCH")
+        vectors = self.embedding.encode([chunk.text for chunk in chunks])
+        self.delete_document(project_id, document_id)
         for chunk, vector in zip(chunks, vectors, strict=True):
             self._chunks[chunk.chunk_id] = chunk
             self._vectors[chunk.chunk_id] = vector

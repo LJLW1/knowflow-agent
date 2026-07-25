@@ -709,18 +709,18 @@ Hermes 可作为 API 容器内的固定依赖或单独本地进程。优先选�
 
 | 验收项 | 证据 | 当前状态 |
 |---|---|---|
-| 四种文档 parser | fixtures + unit tests | 未开始 |
-| 增量 Chroma 索引 | 重复/更新/删除集成测试 | 未开始 |
-| 可引用问答与拒答 | API 结果 + citation tests | 未开始 |
-| 六个接口 | OpenAPI + API tests | 未开始 |
-| 两个 Hermes 工具 | plugin tests + trace | 未开始 |
-| 只读 GitHub MCP | allowlist/deny tests | 未开始 |
-| 有限子任务 | success/timeout/partial failure | 未开始 |
-| 项目级持久化 | restart + isolation tests | 未开始 |
-| 每日摘要 | 幂等 Cron 演示 | 未开始 |
-| 日志与恢复 | trace + fault injection | 未开始 |
-| 56 条评测 | dataset + raw results + report | 未开始 |
-| Docker/CI | clean build + green Actions | 未开始 |
+| 四种文档 parser | fixtures + unit tests | 已完成 |
+| 增量 Chroma 索引 | 重复/更新/删除集成测试 | 已完成 |
+| 可引用问答与拒答 | API 结果 + citation tests | 已完成（真实云模型质量待测量） |
+| 六个接口 | OpenAPI + API tests | 已完成 |
+| 两个 Hermes 工具 | plugin tests + trace | 已完成 |
+| 只读 GitHub MCP | allowlist/deny tests | 已完成 |
+| 有限子任务 | success/timeout/partial failure | 已完成 |
+| 项目级持久化 | restart + isolation tests | 已完成 |
+| 每日摘要 | 幂等 Cron 演示 | 已完成 |
+| 日志与恢复 | trace + fault injection | 已完成 |
+| 56 条评测 | dataset + raw results + report | 已完成（BGE/云模型指标待测量） |
+| Docker/CI | clean build + green Actions | 已完成（GitHub Actions Linux runner） |
 
 ## 21. 原项目与个人贡献边界
 

@@ -82,10 +82,12 @@ class OpenAICompatibleLLM:
 class FakeLLM:
     """Test double. Its outputs must never be reported as model-quality results."""
 
-    model_name = "fake-llm"
-
     def __init__(self, *, force_refusal: bool = False) -> None:
         self.force_refusal = force_refusal
+
+    @property
+    def model_name(self) -> str:
+        return "fake-llm"
 
     def generate(self, question: str, hits: list[RetrievalHit], prompt: str) -> LLMAnswer:
         del question, prompt

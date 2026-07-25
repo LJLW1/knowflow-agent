@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
-from typing import Protocol
+from typing import Any, Protocol, cast
 
 import numpy as np
 
@@ -52,7 +53,11 @@ class BGEEmbedding:
             from sentence_transformers import SentenceTransformer
         except ImportError as exc:
             raise RuntimeError("EMBEDDING_EXTRA_NOT_INSTALLED") from exc
-        self.model = SentenceTransformer(model_name)
+        self.model = SentenceTransformer(
+            model_name,
+            cache_folder=os.getenv("HF_HOME"),
+        )
 
     def encode(self, texts: list[str]) -> list[list[float]]:
-        return self.model.encode(texts, normalize_embeddings=True).tolist()
+        encoded: Any = self.model.encode(texts, normalize_embeddings=True)
+        return cast(list[list[float]], encoded.tolist())

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from rank_bm25 import BM25Okapi
+from rank_bm25 import BM25Okapi  # type: ignore[import-untyped]
 
 from knowflow.domain.models import ChunkRecord, RetrievalHit
 from knowflow.retrieval.embedding import lexical_tokens
@@ -33,7 +33,11 @@ class HybridRetriever:
         candidates = self._chunks.get(project_id, self.vector_store.project_chunks(project_id))
         if not candidates:
             return []
-        dense = self.vector_store.search(project_id=project_id, query=query, top_k=max(top_k * 3, 10))
+        dense = self.vector_store.search(
+            project_id=project_id,
+            query=query,
+            top_k=max(top_k * 3, 10),
+        )
         corpus = [lexical_tokens(chunk.text) or [""] for chunk in candidates]
         bm25 = BM25Okapi(corpus)
         scores = bm25.get_scores(lexical_tokens(query))
