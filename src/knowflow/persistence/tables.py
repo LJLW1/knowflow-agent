@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from knowflow.persistence.database import Base
@@ -64,3 +64,36 @@ class TaskRunRow(Base):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     trace_id: Mapped[str] = mapped_column(String(64), index=True)
+
+
+class IndexVersionRow(Base):
+    __tablename__ = "index_versions"
+    __table_args__ = (UniqueConstraint("project_id", "index_version_id"),)
+
+    row_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    index_version_id: Mapped[str] = mapped_column(String(64), index=True)
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("projects.project_id", ondelete="CASCADE"), index=True
+    )
+    document_id: Mapped[str] = mapped_column(String(64), index=True)
+    content_sha256: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class ChunkRow(Base):
+    __tablename__ = "chunks"
+    __table_args__ = (UniqueConstraint("project_id", "chunk_id"),)
+
+    row_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    chunk_id: Mapped[str] = mapped_column(String(64), index=True)
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("projects.project_id", ondelete="CASCADE"), index=True
+    )
+    document_id: Mapped[str] = mapped_column(String(64), index=True)
+    index_version_id: Mapped[str] = mapped_column(String(64), index=True)
+    ordinal: Mapped[int] = mapped_column(Integer)
+    text: Mapped[str] = mapped_column(Text)
+    token_count: Mapped[int] = mapped_column(Integer)
+    page_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    page_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    section_path: Mapped[list[str]] = mapped_column(JSON, default=list)
