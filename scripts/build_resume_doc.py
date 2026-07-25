@@ -21,6 +21,7 @@ BLUE = "176B87"
 PALE = "EAF4F7"
 GRAY = "5B6573"
 WHITE = "FFFFFF"
+DOCUMENT_FONT = "Arial Unicode MS"
 
 
 def set_cell_shading(cell, fill: str) -> None:
@@ -69,9 +70,10 @@ def add_hyperlink(paragraph, text: str, url: str) -> None:
     run = OxmlElement("w:r")
     properties = OxmlElement("w:rPr")
     fonts = OxmlElement("w:rFonts")
-    fonts.set(qn("w:ascii"), "Arial")
-    fonts.set(qn("w:hAnsi"), "Arial")
-    fonts.set(qn("w:eastAsia"), "Songti SC")
+    fonts.set(qn("w:ascii"), DOCUMENT_FONT)
+    fonts.set(qn("w:hAnsi"), DOCUMENT_FONT)
+    fonts.set(qn("w:eastAsia"), DOCUMENT_FONT)
+    fonts.set(qn("w:cs"), DOCUMENT_FONT)
     color = OxmlElement("w:color")
     color.set(qn("w:val"), BLUE)
     underline = OxmlElement("w:u")
@@ -177,8 +179,11 @@ def add_qa(document: Document, number: int, question: str, answer: str) -> None:
 
 def apply_styles(document: Document) -> None:
     normal = document.styles["Normal"]
-    normal.font.name = "Arial"
-    normal._element.rPr.rFonts.set(qn("w:eastAsia"), "Songti SC")
+    normal.font.name = DOCUMENT_FONT
+    normal._element.rPr.rFonts.set(qn("w:ascii"), DOCUMENT_FONT)
+    normal._element.rPr.rFonts.set(qn("w:hAnsi"), DOCUMENT_FONT)
+    normal._element.rPr.rFonts.set(qn("w:eastAsia"), DOCUMENT_FONT)
+    normal._element.rPr.rFonts.set(qn("w:cs"), DOCUMENT_FONT)
     normal.font.size = Pt(9.2)
     normal.font.color.rgb = RGBColor.from_string("202A35")
     normal.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
@@ -192,13 +197,11 @@ def apply_styles(document: Document) -> None:
         ("Heading 2", 11, BLUE),
     ):
         style = document.styles[style_name]
-        style.font.name = "Arial"
-        style._element.rPr.rFonts.set(
-            qn("w:eastAsia"),
-            "Heiti SC"
-            if style_name in {"Title", "Heading 1", "Heading 2"}
-            else "Songti SC",
-        )
+        style.font.name = DOCUMENT_FONT
+        style._element.rPr.rFonts.set(qn("w:ascii"), DOCUMENT_FONT)
+        style._element.rPr.rFonts.set(qn("w:hAnsi"), DOCUMENT_FONT)
+        style._element.rPr.rFonts.set(qn("w:eastAsia"), DOCUMENT_FONT)
+        style._element.rPr.rFonts.set(qn("w:cs"), DOCUMENT_FONT)
         style.font.size = Pt(size)
         style.font.color.rgb = RGBColor.from_string(color)
         style.font.bold = style_name != "Subtitle"
@@ -249,7 +252,7 @@ def build() -> None:
         "基于 Hermes Agent 的企业知识库与有限工作流智能体 · 非官方独立扩展项目",
     )
     link_line = document.add_paragraph()
-    add_hyperlink(link_line, "目标 GitHub：LJLW1/knowflow-agent", "https://github.com/LJLW1/knowflow-agent")
+    add_hyperlink(link_line, "GitHub：LJLW1/knowflow-agent", "https://github.com/LJLW1/knowflow-agent")
     link_line.add_run("  ·  Python 3.11  ·  MIT")
 
     add_heading(document, "一句话项目介绍")
@@ -405,8 +408,15 @@ def build() -> None:
                 "引用正确率、回答忠实度、幻觉率、工具选择准确率、任务完成率、Token/API 成本、"
                 "端到端延迟、错误恢复率均待测量。",
             ),
-            ("Docker 本机验收", "待测量：Compose 配置已通过，Docker Desktop daemon 未启动。"),
-            ("GitHub 远端", "待发布：目标仓库尚未创建或未授权当前会话写入。"),
+            (
+                "Docker 验收",
+                "GitHub Actions Linux runner 已通过镜像构建、容器健康检查和命名卷重启持久化检查；"
+                "本机 Docker Desktop 尚未启动。",
+            ),
+            (
+                "GitHub 远端",
+                "公开仓库已发布；5 个真实 Issues 对应独立分支/PR，CI 与 Docker workflow 均为绿色。",
+            ),
         ],
     )
     add_heading(document, "口径说明")
@@ -567,7 +577,7 @@ def build() -> None:
     add_heading(document, "项目不足")
     document.add_paragraph(
         "无 OCR/表格理解；无完整 RBAC/SSO；任务不跨进程恢复；BGE 与云模型效果尚未测量；"
-        "Docker daemon 和 GitHub 远端发布仍需要本机授权/启动后完成最终验收。"
+        "本机 Docker Desktop 尚未启动，但 Linux runner 已通过镜像、健康检查和重启持久化验收。"
     )
     add_heading(document, "后续优化顺序")
     document.add_paragraph(

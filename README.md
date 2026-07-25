@@ -1,5 +1,8 @@
 # KnowFlow Agent
 
+[![CI](https://github.com/LJLW1/knowflow-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/LJLW1/knowflow-agent/actions/workflows/ci.yml)
+[![Docker](https://github.com/LJLW1/knowflow-agent/actions/workflows/docker.yml/badge.svg)](https://github.com/LJLW1/knowflow-agent/actions/workflows/docker.yml)
+
 基于 Hermes Agent 的企业文档知识库与有限工作流智能体。系统把团队内部需求、架构、API、运维、安全和事故资料解析为项目隔离的索引，提供混合检索、可追溯引用问答、只读 GitHub MCP 和定时知识库日报。
 
 > 这是 LI Jiale 的非官方独立衍生项目，不属于 Nous Research。Hermes Agent 固定为 `0.18.2` / commit `9de9c25f620ff7f1ce0fd5457d596052d5159596`，本仓库不复制或修改其核心源码。
@@ -20,6 +23,12 @@ Hermes 已提供稳定的 Agent Loop、Tool Registry、Memory、Cron、MCP 客�
 - `[自研]` 56 条评测集、Hash CI 基线和可复现 BGE 手动评测。
 
 完整架构见 [docs/architecture.md](docs/architecture.md)。
+
+## 演示截图
+
+![KnowFlow Agent 评测页面](docs/images/knowflow-dashboard.png)
+
+截图来自实际运行的 Streamlit 页面：56 条评测数据已加载，HashEmbedding Dense/Hybrid Recall@6 已计算；云模型质量指标在配置真实 API Key 前明确显示“待测量”。
 
 ## 技术栈
 
@@ -67,7 +76,7 @@ uv run knowflow-eval --embedding bge --output reports/evaluation/bge-local.json
 
 评测集共 56 条：15 条直接回答、8 条跨文档、8 条不存在答案、5 条幻觉诱导、8 条工具调用、6 条多步任务、6 条工具失败。HashEmbedding 只用于 CI；云模型指标在真实 Key 配置前统一标记“待测量”。
 
-当前实测报告见 [reports/evaluation/hash-ci.md](reports/evaluation/hash-ci.md)。BGE 下载与 Docker 本机验收状态见 [docs/known-issues.md](docs/known-issues.md)。
+当前实测报告见 [reports/evaluation/hash-ci.md](reports/evaluation/hash-ci.md)。GitHub Actions 已完成 pytest、Ruff、strict mypy、Docker build、容器健康检查和命名卷重启持久化检查；BGE 下载与本机 Docker Desktop 状态见 [docs/known-issues.md](docs/known-issues.md)。
 
 ## 项目结构
 
@@ -87,7 +96,7 @@ reports/evaluation/    实际运行结果
 
 上游复用：Hermes Agent Loop、Provider 调用、Tool Registry、原生 Memory、FTS5 Session Search、MCP 客户端、Cron、`delegate_task`、Gateway、Plugin 框架和安全审批。这些能力不会写成个人独立成果。
 
-更详细的声明见 [UPSTREAM.md](UPSTREAM.md) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+更详细的声明见 [docs/contributions.md](docs/contributions.md)、[UPSTREAM.md](UPSTREAM.md) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 ## 许可证
 
