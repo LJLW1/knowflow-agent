@@ -155,6 +155,16 @@ def create_app(settings: Settings | None = None, *, llm: LLM | None = None) -> F
         )
         return result.model_dump(mode="json")
 
+    @app.post("/internal/v1/search", include_in_schema=False)
+    def internal_search(payload: dict[str, Any]) -> dict[str, Any]:
+        project_id = str(payload.get("project_id", ""))
+        query_text = str(payload.get("query", ""))
+        top_k = int(payload.get("top_k", 6))
+        if not project_id or not query_text:
+            raise ValueError("INVALID_REQUEST")
+        hits = container.retriever.search(project_id, query_text, top_k=top_k)
+        return {"hits": [hit.model_dump(mode="json") for hit in hits]}
+
     @app.post("/api/v1/tasks", status_code=202)
     def create_task(request: Request, payload: TaskRequest) -> dict[str, Any]:
         container.repository.create_project(payload.project_id, payload.project_id)

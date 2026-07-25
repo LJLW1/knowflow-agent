@@ -1,0 +1,6 @@
+name: knowflow
+version: "0.1.0"
+description: "Project-scoped document search and cited-answer tools backed by the independent KnowFlow service."
+author: "LI Jiale"
+hooks:
+  - pre_tool_call
