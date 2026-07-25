@@ -97,3 +97,44 @@ class ChunkRow(Base):
     page_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
     page_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
     section_path: Mapped[list[str]] = mapped_column(JSON, default=list)
+
+
+class PreferenceRow(Base):
+    __tablename__ = "preferences"
+    __table_args__ = (UniqueConstraint("project_id", "preference_key"),)
+
+    row_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("projects.project_id", ondelete="CASCADE"), index=True
+    )
+    preference_key: Mapped[str] = mapped_column(String(128))
+    value: Mapped[Any] = mapped_column(JSON)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class ToolEventRow(Base):
+    __tablename__ = "tool_events"
+
+    row_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("projects.project_id", ondelete="CASCADE"), index=True
+    )
+    task_id: Mapped[str] = mapped_column(String(64), index=True)
+    trace_id: Mapped[str] = mapped_column(String(64), index=True)
+    tool_name: Mapped[str] = mapped_column(String(128))
+    status: Mapped[str] = mapped_column(String(32))
+    duration_ms: Mapped[int] = mapped_column(Integer)
+    error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class EvaluationRunRow(Base):
+    __tablename__ = "evaluation_runs"
+
+    run_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("projects.project_id", ondelete="CASCADE"), index=True
+    )
+    config: Mapped[dict[str, Any]] = mapped_column(JSON)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

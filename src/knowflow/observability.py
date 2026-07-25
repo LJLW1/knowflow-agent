@@ -8,7 +8,15 @@ import re
 from datetime import UTC, datetime
 from typing import Any
 
-SENSITIVE_KEYS = re.compile(r"(api[_-]?key|authorization|token|password|pat)", re.IGNORECASE)
+SENSITIVE_KEYS = re.compile(
+    r"^(?:"
+    r"authorization|password|passwd|secret|client[_-]?secret|"
+    r"(?:.+[_-])?api[_-]?key|"
+    r"token|access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|"
+    r"github[_-]?pat|pat"
+    r")$",
+    re.IGNORECASE,
+)
 
 
 def redact(value: Any) -> Any:

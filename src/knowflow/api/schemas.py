@@ -1,5 +1,7 @@
 """HTTP request and response schemas."""
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 from knowflow.domain.models import AnswerResult
@@ -17,5 +19,10 @@ class QueryResponse(AnswerResult):
 
 class TaskRequest(BaseModel):
     project_id: str = Field(min_length=1)
-    mode: str = "knowledge_report"
+    mode: Literal["knowledge_report"] = "knowledge_report"
     input: dict[str, object] = Field(default_factory=dict)
+
+
+class EvaluationRequest(BaseModel):
+    project_id: str = Field(default="atlas", min_length=1)
+    embedding_backend: Literal["hash", "bge"] = "hash"

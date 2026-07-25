@@ -5,10 +5,18 @@ from knowflow.observability import JsonFormatter, redact
 
 
 def test_redaction_removes_common_secret_fields() -> None:
-    payload = redact({"api_key": "secret", "nested": {"Authorization": "Bearer x"}, "safe": "ok"})
+    payload = redact(
+        {
+            "api_key": "secret",
+            "nested": {"Authorization": "Bearer x"},
+            "safe": "ok",
+            "path": "/healthz",
+        }
+    )
     assert payload["api_key"] == "[REDACTED]"
     assert payload["nested"]["Authorization"] == "[REDACTED]"
     assert payload["safe"] == "ok"
+    assert payload["path"] == "/healthz"
 
 
 def test_json_formatter_emits_trace_field() -> None:

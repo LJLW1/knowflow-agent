@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --frozen --extra dev
+      - run: uv run ruff check .
+      - run: uv run mypy src/knowflow
+      - run: uv run pytest --cov=knowflow --cov-report=term-missing
+      - name: API smoke
+        env:
+          KNOWFLOW_DATABASE_URL: sqlite:///smoke.db
+          KNOWFLOW_CHROMA_PATH: .smoke-chroma
+          KNOWFLOW_UPLOAD_PATH: .smoke-uploads
+          KNOWFLOW_REPORT_PATH: .smoke-reports
+          KNOWFLOW_EMBEDDING_BACKEND: hash
+          KNOWFLOW_VECTOR_BACKEND: memory
+        run: |
+          uv run knowflow-api &
+          api_pid=$!
+          trap 'kill "$api_pid"' EXIT
+          for attempt in {1..20}; do
+            curl --fail http://127.0.0.1:8000/healthz && break
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:8000/openapi.json > /dev/null
+      - name: Validate evaluation dataset
+        run: uv run pytest tests/test_evaluation_dataset.py

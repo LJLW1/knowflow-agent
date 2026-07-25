@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
-from pathlib import Path
 from typing import Protocol
 
 from knowflow.domain.models import AnswerResult, Citation, RetrievalHit
@@ -13,7 +12,8 @@ from knowflow.retrieval.hybrid import HybridRetriever
 
 
 class LLM(Protocol):
-    model_name: str | None
+    @property
+    def model_name(self) -> str | None: ...
 
     def generate(self, question: str, hits: list[RetrievalHit], prompt: str) -> LLMAnswer: ...
 
@@ -63,7 +63,9 @@ class RAGService:
             answer=llm_answer.answer,
             citations=citations,
             answerable=answerable,
-            refusal_reason=None if answerable else (llm_answer.refusal_reason or "INVALID_CITATION"),
+            refusal_reason=(
+                None if answerable else (llm_answer.refusal_reason or "INVALID_CITATION")
+            ),
             retrieval_hits=hits,
             prompt_version=self.prompt_version,
             model=self.llm.model_name,

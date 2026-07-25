@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from io import BytesIO
 from pathlib import Path
 
-import fitz
+import fitz  # type: ignore[import-untyped]
 from docx import Document
 
 from knowflow.document.security import validate_filename

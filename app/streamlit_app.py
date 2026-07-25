@@ -64,6 +64,9 @@ elif page == "最近 Trace":
 
 else:
     if st.button("运行评测"):
-        response = httpx.post(f"{API_URL}/api/v1/evaluations/run")
+        response = httpx.post(
+            f"{API_URL}/api/v1/evaluations/run",
+            json={"project_id": project_id, "embedding_backend": "hash"},
+        )
         st.json(response.json())
     st.caption("云模型质量指标在配置真实 API Key 前显示“待测量”。")

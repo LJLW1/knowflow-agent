@@ -1,0 +1,46 @@
+services:
+  api:
+    build: .
+    environment:
+      KNOWFLOW_DATABASE_URL: sqlite:////app/data/runtime/knowflow.db
+      KNOWFLOW_CHROMA_PATH: /app/data/chroma
+      KNOWFLOW_UPLOAD_PATH: /app/data/uploads
+      KNOWFLOW_REPORT_PATH: /app/reports/runtime
+      KNOWFLOW_EMBEDDING_BACKEND: ${KNOWFLOW_EMBEDDING_BACKEND:-bge}
+      KNOWFLOW_VECTOR_BACKEND: chroma
+      KNOWFLOW_OPENAI_BASE_URL: ${KNOWFLOW_OPENAI_BASE_URL:-}
+      KNOWFLOW_OPENAI_API_KEY: ${KNOWFLOW_OPENAI_API_KEY:-}
+      KNOWFLOW_OPENAI_MODEL: ${KNOWFLOW_OPENAI_MODEL:-}
+      KNOWFLOW_INTERNAL_API_TOKEN: ${KNOWFLOW_INTERNAL_API_TOKEN:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - knowflow_data:/app/data
+      - knowflow_reports:/app/reports/runtime
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    restart: unless-stopped
+
+  ui:
+    build: .
+    command: ["streamlit", "run", "app/streamlit_app.py", "--server.address=0.0.0.0"]
+    environment:
+      KNOWFLOW_API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  knowflow_data:
+  knowflow_reports:

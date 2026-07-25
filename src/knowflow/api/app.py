@@ -2,30 +2,45 @@
 
 from __future__ import annotations
 
-import uuid
 import logging
+import secrets
+import uuid
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from datetime import date
 from pathlib import Path
 from typing import Any
 
 import uvicorn
-from fastapi import FastAPI, File, Form, Request, UploadFile
+from fastapi import (
+    BackgroundTasks,
+    FastAPI,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Request,
+    UploadFile,
+)
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
-from knowflow.api.schemas import QueryRequest, TaskRequest
+from knowflow.api.schemas import EvaluationRequest, QueryRequest, TaskRequest
 from knowflow.config import Settings
 from knowflow.document.parsers import InvalidDocumentError
 from knowflow.document.service import DocumentService
 from knowflow.domain.models import TaskStatus
+from knowflow.evaluation.runner import run_evaluation as execute_evaluation
+from knowflow.observability import configure_logging
 from knowflow.persistence.database import Database
 from knowflow.persistence.repositories import KnowledgeRepository
-from knowflow.observability import configure_logging
 from knowflow.rag.llm import LLMNotConfigured, OpenAICompatibleLLM
 from knowflow.rag.service import LLM, RAGService
-from knowflow.retrieval.embedding import BGEEmbedding, HashEmbedding
 from knowflow.retrieval.chroma import ChromaVectorStore
+from knowflow.retrieval.embedding import BGEEmbedding, HashEmbedding
 from knowflow.retrieval.hybrid import HybridRetriever
 from knowflow.retrieval.store import InMemoryVectorStore
+from knowflow.workflow.reports import KnowledgeReportService
 
 
 class Container:
@@ -51,6 +66,7 @@ class Container:
                 self.vector_store.add(self.repository.list_chunks(project_id))
         self.retriever = HybridRetriever(self.vector_store)
         self.documents = DocumentService(self.repository, self.vector_store)
+        self.reports = KnowledgeReportService(settings.report_path)
         self.llm = llm or OpenAICompatibleLLM(
             api_key=settings.openai_api_key,
             base_url=settings.openai_base_url,
@@ -85,15 +101,20 @@ def create_app(settings: Settings | None = None, *, llm: LLM | None = None) -> F
     logger = logging.getLogger("knowflow.api")
 
     @asynccontextmanager
-    async def lifespan(_: FastAPI):
-        container.repository.interrupt_running_tasks()
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        for project_id in container._known_projects():
+            container.documents.reconcile_incomplete_indexes(project_id)
+        container.repository.interrupt_incomplete_tasks()
         yield
 
     app = FastAPI(title="KnowFlow Agent API", version="0.1.0", lifespan=lifespan)
     app.state.container = container
 
     @app.middleware("http")
-    async def trace_middleware(request: Request, call_next: Any):
+    async def trace_middleware(
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         trace_id = request.headers.get("x-trace-id") or f"tr_{uuid.uuid4().hex}"
         request.state.trace_id = trace_id
         response = await call_next(request)
@@ -156,7 +177,22 @@ def create_app(settings: Settings | None = None, *, llm: LLM | None = None) -> F
         return result.model_dump(mode="json")
 
     @app.post("/internal/v1/search", include_in_schema=False)
-    def internal_search(payload: dict[str, Any]) -> dict[str, Any]:
+    def internal_search(
+        payload: dict[str, Any],
+        internal_token: str | None = Header(
+            default=None,
+            alias="X-KnowFlow-Internal-Token",
+        ),
+    ) -> dict[str, Any]:
+        configured = configuration.internal_api_token
+        configured_value = configured.get_secret_value() if configured is not None else ""
+        if not configured_value:
+            raise HTTPException(status_code=503, detail="INTERNAL_API_NOT_CONFIGURED")
+        if internal_token is None or not secrets.compare_digest(
+            internal_token,
+            configured_value,
+        ):
+            raise HTTPException(status_code=401, detail="INVALID_INTERNAL_TOKEN")
         project_id = str(payload.get("project_id", ""))
         query_text = str(payload.get("query", ""))
         top_k = int(payload.get("top_k", 6))
@@ -166,7 +202,11 @@ def create_app(settings: Settings | None = None, *, llm: LLM | None = None) -> F
         return {"hits": [hit.model_dump(mode="json") for hit in hits]}
 
     @app.post("/api/v1/tasks", status_code=202)
-    def create_task(request: Request, payload: TaskRequest) -> dict[str, Any]:
+    def create_task(
+        request: Request,
+        payload: TaskRequest,
+        background_tasks: BackgroundTasks,
+    ) -> dict[str, Any]:
         container.repository.create_project(payload.project_id, payload.project_id)
         task_id = f"task_{uuid.uuid4().hex}"
         task = container.repository.create_task(
@@ -175,6 +215,12 @@ def create_app(settings: Settings | None = None, *, llm: LLM | None = None) -> F
             status=TaskStatus.PENDING,
             request=payload.model_dump(mode="json"),
             trace_id=request.state.trace_id,
+        )
+        background_tasks.add_task(
+            _generate_report_task,
+            container,
+            payload.project_id,
+            task_id,
         )
         return task.model_dump(mode="json")
 
@@ -185,9 +231,33 @@ def create_app(settings: Settings | None = None, *, llm: LLM | None = None) -> F
             return JSONResponse(status_code=404, content={"error": {"code": "TASK_NOT_FOUND"}})
         return task.model_dump(mode="json")
 
-    @app.post("/api/v1/evaluations/run", status_code=202)
-    def run_evaluation(request: Request) -> dict[str, str]:
-        return {"status": "accepted", "run_id": f"eval_{uuid.uuid4().hex}", "trace_id": request.state.trace_id}
+    @app.post("/api/v1/evaluations/run")
+    def run_evaluation(
+        request: Request,
+        payload: EvaluationRequest,
+    ) -> dict[str, Any]:
+        run_id = f"eval_{uuid.uuid4().hex}"
+        metrics = execute_evaluation(embedding_backend=payload.embedding_backend)
+        container.repository.create_project(payload.project_id, payload.project_id)
+        container.repository.save_evaluation_run(
+            run_id=run_id,
+            project_id=payload.project_id,
+            config={
+                "embedding_backend": payload.embedding_backend,
+                "top_k": metrics["top_k"],
+            },
+            metrics=metrics,
+        )
+        return {
+            "status": "completed",
+            "run_id": run_id,
+            "trace_id": request.state.trace_id,
+            "metrics": {
+                "dataset_cases": metrics["dataset_cases"],
+                "dense_recall_at_k": metrics["dense"]["recall_at_k"],
+                "hybrid_recall_at_k": metrics["hybrid"]["recall_at_k"],
+            },
+        }
 
     return app
 
@@ -197,6 +267,40 @@ def _error(request: Request, code: str, message: str, status: int) -> JSONRespon
         status_code=status,
         content={"error": {"code": code, "message": message, "trace_id": request.state.trace_id}},
     )
+
+
+def _generate_report_task(
+    container: Container,
+    project_id: str,
+    task_id: str,
+) -> None:
+    container.repository.update_task(
+        project_id=project_id,
+        task_id=task_id,
+        status=TaskStatus.RUNNING,
+    )
+    try:
+        filenames = [
+            document.filename for document in container.repository.list_documents(project_id)
+        ]
+        report = container.reports.generate(project_id, date.today(), filenames)
+        container.repository.update_task(
+            project_id=project_id,
+            task_id=task_id,
+            status=TaskStatus.SUCCEEDED,
+            result={
+                "report_path": str(report.path),
+                "created": report.created,
+                "documents": len(filenames),
+            },
+        )
+    except Exception:
+        container.repository.update_task(
+            project_id=project_id,
+            task_id=task_id,
+            status=TaskStatus.FAILED,
+            error_code="REPORT_GENERATION_FAILED",
+        )
 
 
 def run() -> None:

@@ -64,13 +64,73 @@ class DocumentService:
             document_id=document_id,
             index_version_id=version_id,
         )
-        if existing is not None:
-            self.vector_store.delete_document(project_id, document_id)
-        self.repository.save_document(document)
-        self.repository.save_index_version(project_id, document_id, version_id, digest)
-        self.repository.save_chunks(chunks)
-        self.vector_store.add(chunks)
+        previous_chunks = (
+            self.repository.list_chunks(project_id, document_id) if existing else []
+        )
+        staging_document = (
+            existing.model_copy(
+                update={
+                    "status": DocumentStatus.INDEXING,
+                    "updated_at": now,
+                }
+            )
+            if existing
+            else document.model_copy(
+                update={
+                    "status": DocumentStatus.INDEXING,
+                    "index_version_id": None,
+                }
+            )
+        )
+        self.repository.save_document(staging_document)
+        try:
+            self.vector_store.replace_document(project_id, document_id, chunks)
+            self.repository.commit_document_index(document, chunks)
+        except Exception:
+            try:
+                if previous_chunks:
+                    self.vector_store.replace_document(
+                        project_id,
+                        document_id,
+                        previous_chunks,
+                    )
+                else:
+                    self.vector_store.delete_document(project_id, document_id)
+            except Exception as rollback_error:
+                raise RuntimeError("INDEX_ROLLBACK_FAILED") from rollback_error
+            if existing:
+                self.repository.save_document(existing)
+            else:
+                self.repository.delete_document(project_id, document_id)
+            raise
         return IngestResult(document, chunks_indexed=len(chunks), skipped=False)
+
+    def reconcile_incomplete_indexes(self, project_id: str) -> int:
+        recovered = 0
+        for document in self.repository.list_documents(project_id):
+            if document.status is not DocumentStatus.INDEXING:
+                continue
+            chunks = self.repository.list_chunks(project_id, document.document_id)
+            if chunks:
+                self.vector_store.replace_document(
+                    project_id,
+                    document.document_id,
+                    chunks,
+                )
+                self.repository.save_document(
+                    document.model_copy(
+                        update={
+                            "status": DocumentStatus.INDEXED,
+                            "index_version_id": chunks[0].index_version_id,
+                            "updated_at": datetime.now(UTC),
+                        }
+                    )
+                )
+            else:
+                self.vector_store.delete_document(project_id, document.document_id)
+                self.repository.delete_document(project_id, document.document_id)
+            recovered += 1
+        return recovered
 
     def delete(self, project_id: str, document_id: str) -> None:
         self.vector_store.delete_document(project_id, document_id)
