@@ -1,0 +1,23 @@
+mcp_servers:
+  github:
+    url: "https://api.githubcopilot.com/mcp/"
+    headers:
+      Authorization: "Bearer ${GITHUB_MCP_PAT}"
+      X-MCP-Toolsets: "repos,issues,pull_requests"
+      X-MCP-Readonly: "true"
+    timeout: 30
+    connect_timeout: 15
+    supports_parallel_tool_calls: false
+    tools:
+      include:
+        - get_file_contents
+        - list_issues
+        - issue_read
+        - list_pull_requests
+        - pull_request_read
+        - search_code
+        - search_issues
+        - get_commit
+        - list_commits
+      resources: false
+      prompts: false

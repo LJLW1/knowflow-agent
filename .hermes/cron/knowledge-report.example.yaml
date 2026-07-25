@@ -1,0 +1,6 @@
+name: knowflow-daily-report
+schedule: "0 18 * * *"
+timezone: "Asia/Shanghai"
+prompt: >
+  为 demo 项目生成当日知识库更新摘要。调用 KnowFlow 报告服务；
+  同一项目同一天重复触发必须返回已有报告，不创建重复文件。
