@@ -5,17 +5,24 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 
 from knowflow.domain.models import (
     DocumentRecord,
     DocumentStatus,
+    ChunkRecord,
     MediaType,
     TaskRun,
     TaskStatus,
 )
 from knowflow.persistence.database import Database
-from knowflow.persistence.tables import DocumentRow, ProjectRow, TaskRunRow
+from knowflow.persistence.tables import (
+    ChunkRow,
+    DocumentRow,
+    IndexVersionRow,
+    ProjectRow,
+    TaskRunRow,
+)
 
 
 class KnowledgeRepository:
@@ -127,6 +134,93 @@ class KnowledgeRepository:
                 )
             )
             return int(result.rowcount or 0)
+
+    def save_index_version(
+        self,
+        project_id: str,
+        document_id: str,
+        index_version_id: str,
+        content_sha256: str,
+    ) -> None:
+        with self.database.session() as session:
+            session.add(
+                IndexVersionRow(
+                    project_id=project_id,
+                    document_id=document_id,
+                    index_version_id=index_version_id,
+                    content_sha256=content_sha256,
+                )
+            )
+
+    def list_index_versions(self, project_id: str, document_id: str) -> list[str]:
+        with self.database.session() as session:
+            return list(
+                session.scalars(
+                    select(IndexVersionRow.index_version_id)
+                    .where(
+                        IndexVersionRow.project_id == project_id,
+                        IndexVersionRow.document_id == document_id,
+                    )
+                    .order_by(IndexVersionRow.created_at)
+                ).all()
+            )
+
+    def save_chunks(self, chunks: list[ChunkRecord]) -> None:
+        if not chunks:
+            return
+        with self.database.session() as session:
+            session.add_all(
+                [
+                    ChunkRow(
+                        **chunk.model_dump(mode="python"),
+                    )
+                    for chunk in chunks
+                ]
+            )
+
+    def list_chunks(self, project_id: str, document_id: str | None = None) -> list[ChunkRecord]:
+        query = select(ChunkRow).where(ChunkRow.project_id == project_id)
+        if document_id is not None:
+            query = query.where(ChunkRow.document_id == document_id)
+        query = query.order_by(ChunkRow.document_id, ChunkRow.ordinal)
+        with self.database.session() as session:
+            rows = session.scalars(query).all()
+            return [
+                ChunkRecord(
+                    chunk_id=row.chunk_id,
+                    project_id=row.project_id,
+                    document_id=row.document_id,
+                    index_version_id=row.index_version_id,
+                    ordinal=row.ordinal,
+                    text=row.text,
+                    token_count=row.token_count,
+                    page_start=row.page_start,
+                    page_end=row.page_end,
+                    section_path=row.section_path,
+                )
+                for row in rows
+            ]
+
+    def delete_document(self, project_id: str, document_id: str) -> None:
+        with self.database.session() as session:
+            session.execute(
+                delete(ChunkRow).where(
+                    ChunkRow.project_id == project_id,
+                    ChunkRow.document_id == document_id,
+                )
+            )
+            session.execute(
+                delete(IndexVersionRow).where(
+                    IndexVersionRow.project_id == project_id,
+                    IndexVersionRow.document_id == document_id,
+                )
+            )
+            session.execute(
+                delete(DocumentRow).where(
+                    DocumentRow.project_id == project_id,
+                    DocumentRow.document_id == document_id,
+                )
+            )
 
     @staticmethod
     def _document(row: DocumentRow) -> DocumentRecord:
